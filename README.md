@@ -16,6 +16,7 @@ Azure VM과 VM Scale Sets를 직접 조립해 HPC 클러스터의 구성 요소�
 | `docs/agenda.md` | 1일 워크숍 진행안 |
 | `docs/architecture.md` | 아키텍처와 설계 고려 사항 |
 | `docs/slide-outline.md` | 발표용 슬라이드 목차 |
+| `docs/lab-guide.md` | Azure 인프라, NFS, 고정 노드 Slurm/MPI 단계별 실습 |
 | `scripts/azure-setup.sh` | Azure CLI 기반 기본 인프라 생성 |
 | `infra/bicep/main.bicep` | Bicep 배포 예제 |
 | `infra/terraform/` | Terraform 배포 예제 |
@@ -39,6 +40,8 @@ bash scripts/azure-setup.sh
 ```
 
 > 이 스크립트는 교육용 인프라 기초를 만들 뿐, 완성된 HPC 클러스터를 자동 구성하지 않습니다. VMSS 노드의 동적 등록/해제, Slurm 설정 배포, 공유 파일시스템 구성은 별도 실습 항목입니다. Slurm의 고정 노드 예제는 `slurm/README.md`를 참고하세요.
+
+전체 실습 순서와 검증 명령은 [`docs/lab-guide.md`](docs/lab-guide.md)를 참고하세요. VMSS 관찰과 고정 호스트 이름을 사용하는 Slurm 실습은 별도 구성입니다.
 
 ## 정리
 
