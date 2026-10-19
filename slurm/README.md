@@ -17,4 +17,6 @@
 4. Head에서 `slurmctld`, compute에서 `slurmd`를 시작하고 `sinfo`, `scontrol ping`으로 확인합니다.
 5. `submit-job.sh` 예제를 이용해 batch job을 제출합니다.
 
+Azure VM 배포부터 공유 작업 디렉터리, 서비스 확인, 예제 작업 제출까지의 단계별 안내는 [`docs/lab-guide.md`](../docs/lab-guide.md)를 참고하세요.
+
 Ubuntu 패키지의 Slurm 설정 경로와 패키지 버전은 이미지/저장소에 따라 다를 수 있으므로 설치 후 `dpkg -L slurm-wlm` 등으로 실제 경로를 확인하세요. 이 실습은 사용자 계정, 공유 스토리지, 방화벽 규칙도 환경에 맞춰 별도 구성해야 합니다.
