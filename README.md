@@ -17,37 +17,28 @@ Azure VM과 VM Scale Sets를 직접 조립해 HPC 클러스터의 구성 요소�
 | `docs/architecture.md` | 아키텍처와 설계 고려 사항 |
 | `docs/slide-outline.md` | 발표용 슬라이드 목차 |
 | `docs/lab-guide.md` | Azure 인프라, NFS, 고정 노드 Slurm/MPI 단계별 실습 |
-| `scripts/azure-setup.sh` | Azure CLI 기반 기본 인프라 생성 |
+| `scripts/run-command/` | Azure Run Command로 각 VM에 적용하는 실습 설정 |
 | `infra/bicep/main.bicep` | Bicep 배포 예제 |
 | `infra/terraform/` | Terraform 배포 예제 |
 | `slurm/` | Slurm 설치/설정 및 job 예제 |
 
+Bicep 및 Terraform 디렉터리는 선택형 IaC 참고 예제이며, 단계별 실습 경로에는 포함되지 않습니다.
+
 ## 사전 준비
 
-- Azure 구독 및 Azure CLI 로그인
-- SSH 공개 키
-- SSH 접속에 사용할 공인 IP CIDR
-- 대상 지역에서 VM SKU quota 및 용량 확인
+- Windows PowerShell 및 Azure CLI
+- Azure 구독 권한과 대상 지역의 VM SKU quota/용량
+- 저장소를 내려받고 저장소 루트에서 PowerShell 열기
 
-## 빠른 시작
+## 실습 시작
 
-`scripts/azure-setup.sh`는 리소스 그룹, VNet, NSG, head VM, compute VMSS를 생성합니다. SSH를 허용할 CIDR을 지정한 뒤 실행하세요.
-
-```bash
-az login
-export SSH_SOURCE_CIDR="203.0.113.10/32" # 본인의 실제 공인 IP/CIDR로 변경
-bash scripts/azure-setup.sh
-```
-
-> 이 스크립트는 교육용 인프라 기초를 만들 뿐, 완성된 HPC 클러스터를 자동 구성하지 않습니다. VMSS 노드의 동적 등록/해제, Slurm 설정 배포, 공유 파일시스템 구성은 별도 실습 항목입니다. Slurm의 고정 노드 예제는 `slurm/README.md`를 참고하세요.
-
-처음부터 차례대로 실행하는 실습은 [`docs/lab-guide.md`](docs/lab-guide.md)를 참고하세요. 로컬 컴퓨터, headnode, compute 노드에서 실행할 명령을 구분하고 각 단계의 확인 방법과 문제 해결 명령을 제공합니다. VMSS 관찰 후 용량을 0으로 줄인 다음 고정 노드 Slurm 실습을 진행합니다.
+전체 실습은 **Windows PowerShell에서 Azure CLI(`az`)만 실행**하도록 구성했습니다. VM 내부 설정은 SSH 접속이나 Bash 터미널 대신 `az vm run-command invoke`로 적용합니다. [단계별 가이드](docs/lab-guide.md)의 명령을 위에서부터 실행하세요. Azure 리소스 생성 비용이 발생합니다.
 
 ## 정리
 
 실습 후 생성한 Azure 리소스는 요금이 발생할 수 있습니다. 사용을 마치면 리소스 그룹을 삭제하세요.
 
-```bash
+```powershell
 az group delete --name rg-hpc-workshop --yes --no-wait
 ```
 
