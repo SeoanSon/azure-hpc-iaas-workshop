@@ -16,7 +16,7 @@
 ## 강사 준비
 
 - 참가자별 Azure 구독 권한, 지역별 VM quota 및 SKU 용량 확인
-- SSH 접속 경로와 참가자별 허용 CIDR 준비
+- Azure CLI 권한, Run Command 사전 조건, 지역별 VM quota 확인
 - 모든 참가자가 실습 후 리소스를 삭제하도록 안내
 - MPI 성능 비교는 동일 VM SKU, 입력 크기, 노드 수를 사용하도록 안내
 

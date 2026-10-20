@@ -9,14 +9,10 @@
 - Munge: 노드 간 Slurm 인증
 - Shared filesystem: job script, 입력, 결과를 공통 경로로 제공
 
-## 고정 노드 실습 순서
+## Azure CLI 실습
 
-1. Head와 두 compute VM에 동일한 Slurm 및 Munge 패키지를 설치합니다.
-2. 모든 노드의 `/etc/munge/munge.key`를 같은 키로 구성하고 소유자/권한을 `munge:munge`, `0400`으로 제한합니다. 키를 저장소에 커밋하거나 공개 채널로 전송하지 않습니다.
-3. 모든 노드에 동일한 `/etc/slurm/slurm.conf`를 설치하고, DNS 또는 `/etc/hosts`에서 `headnode`, `compute01`, `compute02` 이름이 해석되는지 확인합니다.
-4. Head에서 `slurmctld`, compute에서 `slurmd`를 시작하고 `sinfo`, `scontrol ping`으로 확인합니다.
-5. `submit-job.sh` 예제를 이용해 batch job을 제출합니다.
+워크숍은 Windows PowerShell의 Azure CLI만 사용합니다. VM에 SSH로 접속하거나 설치 명령을 직접 입력하지 말고, [`docs/lab-guide.md`](../docs/lab-guide.md)의 `az vm run-command invoke` 단계를 차례대로 실행합니다. Run Command가 이 디렉터리의 Slurm 설정과 패키지 설치 스크립트를 VM에 전달합니다.
 
-Azure VM 배포부터 공유 작업 디렉터리, 서비스 확인, 예제 작업 제출까지의 단계별 안내는 [`docs/lab-guide.md`](../docs/lab-guide.md)를 참고하세요.
+`scripts/run-command/`에는 NFS, Munge 키, Slurm 서비스, MPI 작업 제출을 위한 Run Command 스크립트가 있습니다. 스크립트는 Azure CLI를 통해 원격 VM에서 실행하며, 로컬 Bash에서 실행하지 않습니다.
 
-Ubuntu 패키지의 Slurm 설정 경로와 패키지 버전은 이미지/저장소에 따라 다를 수 있으므로 설치 후 `dpkg -L slurm-wlm` 등으로 실제 경로를 확인하세요. 이 실습은 사용자 계정, 공유 스토리지, 방화벽 규칙도 환경에 맞춰 별도 구성해야 합니다.
+이 설정은 고정 노드 이름 `headnode`, `compute01`, `compute02`를 사용하는 최소 교육용 예제입니다. VMSS 인스턴스를 Slurm에 자동 등록하거나 제거하지 않습니다.
