@@ -41,7 +41,7 @@ bash scripts/azure-setup.sh
 
 > 이 스크립트는 교육용 인프라 기초를 만들 뿐, 완성된 HPC 클러스터를 자동 구성하지 않습니다. VMSS 노드의 동적 등록/해제, Slurm 설정 배포, 공유 파일시스템 구성은 별도 실습 항목입니다. Slurm의 고정 노드 예제는 `slurm/README.md`를 참고하세요.
 
-전체 실습 순서와 검증 명령은 [`docs/lab-guide.md`](docs/lab-guide.md)를 참고하세요. VMSS 관찰과 고정 호스트 이름을 사용하는 Slurm 실습은 별도 구성입니다.
+처음부터 차례대로 실행하는 실습은 [`docs/lab-guide.md`](docs/lab-guide.md)를 참고하세요. 로컬 컴퓨터, headnode, compute 노드에서 실행할 명령을 구분하고 각 단계의 확인 방법과 문제 해결 명령을 제공합니다. VMSS 관찰 후 용량을 0으로 줄인 다음 고정 노드 Slurm 실습을 진행합니다.
 
 ## 정리
 
