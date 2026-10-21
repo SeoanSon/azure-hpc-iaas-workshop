@@ -21,6 +21,7 @@ Azure VM과 VM Scale Sets를 직접 조립해 HPC 클러스터의 구성 요소�
 | `infra/bicep/main.bicep` | Bicep 배포 예제 |
 | `infra/terraform/` | Terraform 배포 예제 |
 | `slurm/` | Slurm 설치/설정 및 job 예제 |
+| `batch-windows-poc/` | 별도 Windows API + Azure Batch 작업/파일 I/O 성능 PoC |
 
 Bicep 및 Terraform 디렉터리는 선택형 IaC 참고 예제이며, 단계별 실습 경로에는 포함되지 않습니다.
 
@@ -44,4 +45,4 @@ az group delete --name rg-hpc-workshop --yes --no-wait
 
 ## 범위
 
-이 워크숍은 VM/VMSS 기반 IaaS와 Slurm의 기초를 설명합니다. Azure CycleCloud 및 Azure Batch는 범위에서 제외하며, AKS도 본 실습의 HPC 작업 스케줄러로 사용하지 않습니다.
+이 워크숍의 단계별 실습은 VM/VMSS 기반 IaaS와 Slurm의 기초를 설명합니다. Azure CycleCloud 및 AKS는 본 실습의 HPC 작업 스케줄러로 사용하지 않습니다. Windows Azure Batch의 독립 PoC는 [`batch-windows-poc/README.md`](batch-windows-poc/README.md)에 있으며, 기본 Slurm 실습과 별도로 배포합니다.
