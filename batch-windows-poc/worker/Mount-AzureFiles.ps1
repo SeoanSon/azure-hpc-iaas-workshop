@@ -73,7 +73,7 @@ WHERE id=@run;
                 job = $Payload.jobId; run = $RunId; mode = $mode; attempt = $attempt
                 start = $started.UtcDateTime; end = $completed.UtcDateTime; ms = [long]$timer.ElapsedMilliseconds
                 success = $success; error = if ($success) { $null } else { $lastError }
-                detail = if ($success) { 'Azure Files SMB 3.x mapping established.' } else { $lastError }
+                detail = if ($success) { 'Azure Files SMB 3.x 연결을 설정했습니다.' } else { $lastError }
             } | Out-Null
         }
         if ($attemptFailed -and $attempt -lt $MaxRetries) { Start-Sleep -Seconds ([Math]::Min(30, [Math]::Pow(2, $attempt - 1))) }

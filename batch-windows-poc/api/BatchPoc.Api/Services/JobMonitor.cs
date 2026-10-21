@@ -22,7 +22,7 @@ public sealed class JobMonitor(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Batch task reconciliation failed");
+                logger.LogError(ex, "Batch 작업 상태 동기화에 실패했습니다.");
             }
         }
     }
@@ -86,8 +86,8 @@ public sealed class JobMonitor(
             """, ("@id", id), ("@status", status), ("@exitCode", exitCode),
             ("@error", errorCode),
             ("@message", errorCode is null ? null : errorCode == "BATCH_TASK_NOT_FOUND"
-                ? "Azure Batch task was not found after submission grace period."
-                : $"Azure Batch task ended with error code {errorCode}."));
+                ? "제출 대기 시간이 지난 후에도 Azure Batch 작업을 찾지 못했습니다."
+                : $"Azure Batch 작업이 오류 코드 {errorCode}(으)로 종료됐습니다."));
         command.Transaction = transaction;
         await command.ExecuteNonQueryAsync(ct);
         await transaction.CommitAsync(ct);

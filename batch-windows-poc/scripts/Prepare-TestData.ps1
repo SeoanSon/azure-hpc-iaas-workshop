@@ -43,4 +43,4 @@ $manifest = foreach ($scenario in $sizes) {
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $OutputManifest -Encoding UTF8
 Remove-Item -LiteralPath $scratch -Recurse -Force
 $fileKey = $null
-Write-Host "Input fixtures uploaded identically to Blob and Azure Files. Manifest: $((Resolve-Path $OutputManifest).Path)"
+Write-Host "테스트 입력 파일을 Blob과 Azure Files에 동일하게 올렸습니다. 매니페스트: $((Resolve-Path $OutputManifest).Path)"

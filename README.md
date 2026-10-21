@@ -7,7 +7,7 @@ Azure VM과 VM Scale Sets를 직접 조립해 HPC 클러스터의 구성 요소�
 - HPC의 병렬 처리, 스케줄링, 네트워크 및 스토리지 개념 이해
 - Azure VM, VMSS, VNet, NSG를 이용한 IaaS 아키텍처 구성
 - Slurm과 MPI를 이용한 작업 제출 및 실행 흐름 이해
-- 성능, 확장성, 보안, 비용 사이의 trade-off 살펴보기
+- 성능, 확장성, 보안, 비용 사이의 절충 관계 살펴보기
 
 ## 저장소 구성
 

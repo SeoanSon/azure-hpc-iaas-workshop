@@ -10,19 +10,19 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var runtime = builder.Configuration.GetSection("Azure").Get<RuntimeOptions>()
-    ?? throw new InvalidOperationException("Missing Azure configuration.");
+    ?? throw new InvalidOperationException("Azure 설정을 찾을 수 없습니다.");
 if (string.IsNullOrWhiteSpace(runtime.SqlConnectionString) ||
     string.IsNullOrWhiteSpace(runtime.StorageAccountUrl) ||
     string.IsNullOrWhiteSpace(runtime.BatchEndpoint) ||
     string.IsNullOrWhiteSpace(runtime.BatchPoolId))
-    throw new InvalidOperationException("SqlConnectionString, StorageAccountUrl, BatchEndpoint and BatchPoolId are required.");
+    throw new InvalidOperationException("Azure:SqlConnectionString, StorageAccountUrl, BatchEndpoint, BatchPoolId 설정이 필요합니다.");
 
 var credential = AzureCredentialFactory.Create(builder.Configuration, builder.Environment);
 var tenantId = builder.Configuration["Authentication:TenantId"];
 var audience = builder.Configuration["Authentication:Audience"];
 if (!builder.Environment.IsDevelopment() &&
     (string.IsNullOrWhiteSpace(tenantId) || string.IsNullOrWhiteSpace(audience)))
-    throw new InvalidOperationException("Authentication:TenantId and Authentication:Audience are required outside Development.");
+    throw new InvalidOperationException("Development 환경이 아니면 Authentication:TenantId 및 Authentication:Audience 설정이 필요합니다.");
 builder.Services.AddSingleton(runtime);
 builder.Services.AddSingleton(credential);
 builder.Services.AddSingleton<SqlStore>();
@@ -53,18 +53,18 @@ app.MapPost("/jobs", async (SubmitJobRequest request, ClaimsPrincipal user, SqlS
         string.IsNullOrWhiteSpace(request.ExecutableVersion) ||
         request.TimeoutSeconds is < 1 or > 86400 ||
         request.CopyMode is not ("azureFiles" or "blob"))
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["request"] = ["Invalid required fields or limits."] });
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["request"] = ["필수 입력값이 없거나 허용 범위를 벗어났습니다."] });
     if (!InputValidation.IsSafeBlobName(request.ExecutableBlob) ||
         request.Inputs.Any(i => !InputValidation.IsSafeBlobName(i.BlobName)))
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["blobName"] = ["Blob names must be relative paths without traversal segments."] });
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["blobName"] = ["Blob 이름은 상위 경로 이동 구간이 없는 상대 경로여야 합니다."] });
     if ((request.ExecutableSha256 is not null && !System.Text.RegularExpressions.Regex.IsMatch(request.ExecutableSha256, "^[a-fA-F0-9]{64}$")) ||
         request.Inputs.Any(i => (i.ExpectedBytes.HasValue && i.ExpectedBytes.Value < 0) ||
             (i.ExpectedSha256 is not null && !System.Text.RegularExpressions.Regex.IsMatch(i.ExpectedSha256, "^[a-fA-F0-9]{64}$"))))
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["integrity"] = ["SHA-256 values must be 64 hexadecimal characters and byte counts non-negative."] });
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["integrity"] = ["SHA-256 값은 16진수 64자여야 하며 바이트 크기는 음수일 수 없습니다."] });
     if (request.Arguments.Any(arg => arg is null || arg.Contains('\0')) || request.Arguments.Sum(x => x.Length) > 16_000)
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["arguments"] = ["Arguments contain a null character or exceed the total length limit."] });
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["arguments"] = ["인자에 널 문자가 있거나 전체 길이 제한을 초과했습니다."] });
     if (request.Inputs.Select(i => i.BlobName).Distinct(StringComparer.OrdinalIgnoreCase).Count() != request.Inputs.Count)
-        return Results.ValidationProblem(new Dictionary<string, string[]> { ["inputs"] = ["Duplicate input blob names are not allowed."] });
+        return Results.ValidationProblem(new Dictionary<string, string[]> { ["inputs"] = ["입력 Blob 이름은 중복될 수 없습니다."] });
     var owner = user.FindFirst("oid")?.Value;
     if (string.IsNullOrWhiteSpace(owner))
         return Results.Forbid();
@@ -139,7 +139,7 @@ app.MapPost("/jobs", async (SubmitJobRequest request, ClaimsPrincipal user, SqlS
     catch (Exception ex)
     {
         await MarkSubmissionFailureAsync(sql, id, ex, ct);
-        return Results.Problem(statusCode: 502, title: "Batch submission failed", detail: "The job could not be submitted to Azure Batch. See the persisted job event for the error code.");
+        return Results.Problem(statusCode: 502, title: "Batch 작업 제출 실패", detail: "Azure Batch에 작업을 제출하지 못했습니다. 저장된 작업 이벤트에서 오류 코드를 확인하세요.");
     }
     await using (var connection = await sql.OpenAsync(ct))
     await using (var command = SqlStore.Command(connection,
@@ -218,7 +218,7 @@ app.MapPost("/jobs/{id}/cancel", async (string id, ClaimsPrincipal user, SqlStor
     if (status is null)
         return Results.NotFound();
     if (status is "succeeded" or "failed" or "mount_failed" or "upload_failed")
-        return Results.Conflict(new { error = "Job is already terminal.", status });
+        return Results.Conflict(new { error = "작업이 이미 종료 상태입니다.", status });
     try
     {
         await batch.CancelAsync(id, "execute", ct);
@@ -227,7 +227,7 @@ app.MapPost("/jobs/{id}/cancel", async (string id, ClaimsPrincipal user, SqlStor
     }
     catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
     {
-        return Results.Conflict(new { error = "Batch task is no longer cancellable." });
+        return Results.Conflict(new { error = "Batch 작업이 더 이상 취소 가능한 상태가 아닙니다." });
     }
 }).RequireAuthorization("ApiUser");
 
@@ -256,7 +256,7 @@ static async Task MarkSubmissionFailureAsync(SqlStore sql, string id, Exception 
         WHERE job_id=@id AND status='queued';
         INSERT dbo.job_events(job_id,event_type,event_time,detail_json)
         VALUES(@id,'submission_failed',SYSUTCDATETIME(),@detail);
-        """, ("@id", id), ("@code", code), ("@message", "Azure Batch submission failed."),
+        """, ("@id", id), ("@code", code), ("@message", "Azure Batch 작업 제출에 실패했습니다."),
         ("@detail", JsonSerializer.Serialize(new { errorCode = code, exception = exception.GetType().Name })));
     await command.ExecuteNonQueryAsync(ct);
 }
@@ -266,7 +266,7 @@ static async Task SetCancelledAsync(SqlStore sql, string id, CancellationToken c
     await using var connection = await sql.OpenAsync(ct);
     await using var command = SqlStore.Command(connection,
         """
-        UPDATE dbo.jobs SET status='failed',error_code='CANCELLED',error_message='Cancellation requested.',completed_at=SYSUTCDATETIME(),updated_at=SYSUTCDATETIME()
+        UPDATE dbo.jobs SET status='failed',error_code='CANCELLED',error_message=N'작업 취소를 요청했습니다.',completed_at=SYSUTCDATETIME(),updated_at=SYSUTCDATETIME()
         WHERE id=@id AND status IN ('queued','running');
         UPDATE dbo.job_runs SET status='failed',error_code='CANCELLED',completed_at=SYSUTCDATETIME()
         WHERE job_id=@id AND status IN ('queued','running');

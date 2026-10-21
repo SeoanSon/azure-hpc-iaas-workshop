@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 if (args.Length != 1 || !File.Exists(args[0]))
 {
-    Console.Error.WriteLine("Usage: CopyProbe.exe <input-file>");
+    Console.Error.WriteLine("사용법: CopyProbe.exe <입력 파일>");
     return 2;
 }
 
@@ -19,5 +19,5 @@ var result = new
 };
 var outputPath = Path.Combine(Environment.CurrentDirectory, "copy-probe-result.json");
 await File.WriteAllTextAsync(outputPath, System.Text.Json.JsonSerializer.Serialize(result, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
-Console.WriteLine($"Read {result.bytes} bytes; SHA-256 {hash}; result written to {outputPath}");
+Console.WriteLine($"{result.bytes}바이트를 읽었습니다. SHA-256: {hash}. 결과 파일: {outputPath}");
 return 0;

@@ -20,10 +20,10 @@ $scenarios = @(
 $results = [System.Collections.Generic.List[object]]::new()
 foreach ($scenario in $scenarios) {
     $fixture = $fixtures | Where-Object scenario -eq $scenario.Name | Select-Object -First 1
-    if (-not $fixture) { throw "Missing prepared fixture $($scenario.Name) in $ManifestPath" }
+    if (-not $fixture) { throw "준비된 테스트 파일이 없습니다: $($scenario.Name), 경로: $ManifestPath" }
     $modeOrder = if ($scenario.Name -eq 'S2-500MB') { @('blob', 'azureFiles') } else { @('azureFiles', 'blob') }
     foreach ($mode in $modeOrder) {
-        Write-Host "Submitting $($scenario.Name), mode=$mode, concurrency=$($scenario.Count)"
+        Write-Host "제출 중: 시나리오=$($scenario.Name), 모드=$mode, 동시 작업 수=$($scenario.Count)"
         $submitted = [System.Collections.Generic.List[object]]::new()
         $pending = [System.Collections.Generic.List[System.Management.Automation.Job]]::new()
         for ($index = 0; $index -lt $scenario.Count; $index++) {
@@ -57,7 +57,7 @@ foreach ($scenario in $scenarios) {
             [void]$pending.Remove($completed)
         }
         $failedSubmit = @($submitted | Where-Object { -not $_.id })
-        if ($failedSubmit.Count -gt 0) { throw "$($failedSubmit.Count) POST /jobs requests failed. First error: $($failedSubmit[0].error)" }
+        if ($failedSubmit.Count -gt 0) { throw "POST /jobs 요청 $($failedSubmit.Count)개가 실패했습니다. 첫 번째 오류: $($failedSubmit[0].error)" }
         foreach ($job in $submitted) {
             $results.Add([pscustomobject]@{
                 scenario = $scenario.Name
@@ -75,13 +75,13 @@ foreach ($scenario in $scenarios) {
             foreach ($jobId in $remaining) {
                 $state = Invoke-RestMethod -Method Get -Uri "$($ApiBaseUrl.AbsoluteUri.TrimEnd('/'))/jobs/$jobId" -Headers $headers
                 if ($state.status -in @('queued','running')) { $stillRunning.Add($jobId) }
-                elseif ($state.status -notin @('succeeded')) { throw "Job $jobId ended with status=$($state.status), error=$($state.errorCode)" }
+                elseif ($state.status -notin @('succeeded')) { throw "작업 $jobId이(가) 상태=$($state.status), 오류=$($state.errorCode)로 종료됐습니다." }
             }
             $remaining = @($stillRunning)
             if ($remaining.Count -gt 0) { Start-Sleep -Seconds $PollSeconds }
         }
-        if ($remaining.Count -gt 0) { throw "Timed out waiting for $($remaining.Count) jobs in $($scenario.Name)/$mode. Manifest has been saved only after all scenarios." }
+        if ($remaining.Count -gt 0) { throw "$($scenario.Name)/$mode 작업 $($remaining.Count)개의 대기 시간이 초과됐습니다. 전체 시나리오 완료 후 매니페스트를 저장합니다." }
     }
 }
 $results | Export-Csv -LiteralPath $OutputCsv -NoTypeInformation -Encoding UTF8
-Write-Host "Completed all six mode/scenario runs. Job manifest: $((Resolve-Path $OutputCsv).Path)"
+Write-Host "여섯 가지 모드/시나리오 실행을 마쳤습니다. 작업 매니페스트: $((Resolve-Path $OutputCsv).Path)"

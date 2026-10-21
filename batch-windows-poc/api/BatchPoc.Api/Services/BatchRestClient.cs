@@ -124,7 +124,7 @@ public sealed class BatchRestClient(TokenCredential credential, RuntimeOptions o
         }
         catch (HttpRequestException)
         {
-            // The original task submission error is the actionable failure.
+            // 최초 Batch 작업 제출 오류를 호출자에게 그대로 전달합니다.
         }
     }
 }

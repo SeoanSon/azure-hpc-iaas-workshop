@@ -2,15 +2,16 @@ targetScope = 'resourceGroup'
 
 @minLength(3)
 @maxLength(10)
-@description('Lowercase resource-name prefix, letters and digits only.')
+@description('리소스 이름 접두사입니다. 영문 소문자와 숫자만 사용할 수 있습니다.')
 param namePrefix string = 'hpcbatch'
 
-param location string = resourceGroup().location
+@description('배포할 Azure 리전입니다. 기본값은 Korea Central(koreacentral)입니다.')
+param location string = 'koreacentral'
 param sqlAdminLogin string
 param sqlAdminObjectId string
-@description('Audience URI used by the API JWT bearer validator (existing Entra app registration).')
+@description('API JWT 토큰 검증에 사용할 기존 Entra 앱 등록의 대상 URI 또는 앱 ID입니다.')
 param apiAudience string
-@description('Windows Azure Batch compute SKU; check regional quota and capacity before deployment.')
+@description('Windows Azure Batch 컴퓨팅 SKU입니다. 배포 전에 해당 리전의 할당량과 용량을 확인하세요.')
 param batchVmSize string = 'Standard_D4as_v5'
 @minValue(1)
 @maxValue(50)
@@ -250,7 +251,7 @@ resource batchPool 'Microsoft.Batch/batchAccounts/pools@2025-06-01' = {
     userAssignedIdentities: { '${workerIdentity.id}': {} }
   }
   properties: {
-    displayName: 'Windows file I/O PoC'
+    displayName: 'Windows 파일 입출력 PoC'
     vmSize: batchVmSize
     taskSlotsPerNode: 1
     deploymentConfiguration: {

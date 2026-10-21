@@ -19,4 +19,4 @@ try {
     $secureKey.Dispose()
     $key = $null
 }
-Write-Host "Stored the dedicated Azure Files account key as Key Vault secret '$SecretName' (value not displayed)."
+Write-Host "전용 Azure Files 계정 키를 Key Vault 비밀 '$SecretName'에 저장했습니다. (키 값은 표시하지 않았습니다.)"

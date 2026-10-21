@@ -75,7 +75,7 @@ try {
             $probeWatch.Stop()
             Invoke-PocSql -ConnectionString $payload.sqlConnectionString -ClientId $payload.workerIdentityClientId -Query @'
 INSERT dbo.mount_metrics(job_id,run_id,copy_mode,operation,attempt,started_at,completed_at,latency_ms,success,error_code,detail)
-VALUES(@job,@run,'blob', 'blob_probe',1,@start,@end,@ms,@success,@error,'Blob endpoint authentication/connectivity; no filesystem mount is performed.');
+VALUES(@job,@run,'blob', 'blob_probe',1,@start,@end,@ms,@success,@error,N'Blob 엔드포인트 인증 및 연결 상태를 확인합니다. 파일 시스템 마운트는 수행하지 않습니다.');
 '@ -Parameters @{ job=$jobId; run=$runId; start=$probeStart.UtcDateTime; end=[DateTimeOffset]::UtcNow.UtcDateTime
                 ms=[long]$probeWatch.ElapsedMilliseconds; success=$probeOk; error=$probeError } | Out-Null
         }
@@ -136,7 +136,7 @@ UPDATE dbo.job_runs SET upload_started_at=@now WHERE id=@run;
     } catch {
         $status = 'upload_failed'
         $errorCode = 'UPLOAD_FAILED'
-        $errorMessage = "Initial failure: $message; diagnostic artifact upload failed."
+        $errorMessage = "최초 오류: $message. 진단 아티팩트 업로드에도 실패했습니다."
     }
 } finally {
     $completed = [DateTimeOffset]::UtcNow
@@ -155,7 +155,7 @@ INSERT dbo.job_events(job_id,event_type,event_time,detail_json) VALUES(@job,@sta
             detail=(@{ errorCode=$errorCode; durationMs=([long]($completed-$started).TotalMilliseconds) } | ConvertTo-Json -Compress)
         } | Out-Null
     } catch {
-        Write-Error "FINAL_STATUS_WRITE_FAILED: $($_.Exception.Message)"
+        Write-Error "최종 상태 저장 실패: $($_.Exception.Message)"
         if ($status -eq 'succeeded') { $status = 'failed'; $errorCode = 'STATUS_PERSIST_FAILED' }
     }
     if ($share) { Remove-SmbMapping -LocalPath $share.Drive -Force -ErrorAction SilentlyContinue }
